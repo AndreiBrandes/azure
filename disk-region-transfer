@@ -1,0 +1,12 @@
+How to move disk or snapshot between regions in Azure
+  Assuming you already have a disk snapshot in region one and want to move it to a new region
+  1. grant access to snapshot
+     az snapshot grant-access --name <snap-shot-name> --resource-group <rg of snapshot> --duation-in-seconds 86400
+  2. create sa in destination region
+     az storage account create --name <sa name> --resource-group <rg> --location <new region> --sku Standard_LRS --kind StorageV2
+  3. create container blob to store vhd in sa
+     az storage container create --account-name <sa name> --name vhds --auth-mode login
+  4. copy snapshot and create vhd in sa container 
+     azcopy copy 'url from step 1' 'https://<sa name>.blob.core.windows.net/vhds/<file name>.vhd?<blob sas token>' >azcopy.log &
+  4. create disk in portal and mount vhd
+  5. mount disk to vm
